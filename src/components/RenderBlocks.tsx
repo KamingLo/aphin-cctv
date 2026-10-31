@@ -35,9 +35,13 @@ const isLegacyTemplateHero = (title?: string | null) => {
 export default function RenderBlocks({
   layout,
   fallbackToDefaultLanding = false,
+  portfolioItems,
+  whatsappUrl,
 }: {
   layout?: Page['layout']
   fallbackToDefaultLanding?: boolean
+  portfolioItems?: PortfolioItem[]
+  whatsappUrl?: string
 }) {
   const hasValidCustomBlocks =
     layout &&
@@ -47,15 +51,15 @@ export default function RenderBlocks({
   if (!hasValidCustomBlocks) {
     if (!fallbackToDefaultLanding) return null
 
-    // Render complete CCTV APHIN sections (Sections 2 through 7) with default craftsmanship data
+    // Render complete CCTV APHIN sections (Sections 2 through 7) connected to Portfolio & CompanySettings
     return (
       <div className="divide-y divide-[#E5E5EA]">
-        <HeroBento />
+        <HeroBento ctaLink={whatsappUrl} />
         <LayananUtama />
         <StandarKerjaBento />
-        <PortofolioLapangan />
+        <PortofolioLapangan items={portfolioItems} />
         <EkosistemPerangkat />
-        <AlurKerja />
+        <AlurKerja whatsappUrl={whatsappUrl} />
       </div>
     )
   }
@@ -72,7 +76,7 @@ export default function RenderBlocks({
                 subtitle={block.subtitle || undefined}
                 description={block.description}
                 ctaText={block.ctaText}
-                ctaLink={block.ctaLink}
+                ctaLink={whatsappUrl || block.ctaLink}
                 secondaryCtaText={block.secondaryCtaText || undefined}
                 secondaryCtaLink={block.secondaryCtaLink || undefined}
                 showcaseLabel={block.showcaseLabel || undefined}
@@ -116,27 +120,31 @@ export default function RenderBlocks({
               />
             )
 
-          case 'portofolioLapangan':
+          case 'portofolioLapangan': {
+            const blockItems = block.items?.map((item) => ({
+              title: item.title,
+              locationContext: item.locationContext,
+              scopeTag: item.scopeTag,
+              category: item.category,
+              mediaMode: item.mediaMode,
+              aspectRatio: item.aspectRatio,
+              overlayTag: item.overlayTag,
+              mediaUrl: getImageUrl(item.media),
+            })) as PortfolioItem[] | undefined
+
+            const mergedPortfolio =
+              portfolioItems && portfolioItems.length > 0 ? portfolioItems : blockItems
+
             return (
               <PortofolioLapangan
                 key={block.id || index}
                 sectionTag={block.sectionTag}
                 title={block.title}
                 subtitle={block.subtitle}
-                items={
-                  block.items?.map((item) => ({
-                    title: item.title,
-                    locationContext: item.locationContext,
-                    scopeTag: item.scopeTag,
-                    category: item.category,
-                    mediaMode: item.mediaMode,
-                    aspectRatio: item.aspectRatio,
-                    overlayTag: item.overlayTag,
-                    mediaUrl: getImageUrl(item.media),
-                  })) as PortfolioItem[]
-                }
+                items={mergedPortfolio}
               />
             )
+          }
 
           case 'ekosistemPerangkat':
             return (
@@ -165,7 +173,7 @@ export default function RenderBlocks({
                 ctaTitle={block.ctaTitle}
                 ctaDescription={block.ctaDescription}
                 ctaButtonText={block.ctaButtonText}
-                whatsappUrl={block.whatsappUrl}
+                whatsappUrl={whatsappUrl || block.whatsappUrl}
               />
             )
 

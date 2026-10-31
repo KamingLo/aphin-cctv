@@ -5,13 +5,22 @@ import MediaPlaceholder, {
   MediaPlaceholderMode,
 } from '@/components/ui/MediaPlaceholder'
 
-export type PortfolioCategory = 'semua' | 'toko' | 'rumah' | 'video'
+export type PortfolioFilterTab = 'semua' | 'toko' | 'rumah' | 'kerapian' | 'video'
 
 export interface PortfolioItem {
   title: string
   locationContext: string
   scopeTag: string
-  category: 'toko' | 'rumah' | 'video'
+  category:
+    | 'toko'
+    | 'rumah'
+    | 'kerapian'
+    | 'video'
+    | 'Toko & Komersial'
+    | 'Rumah Tinggal'
+    | 'Kerapian Instalasi'
+    | 'Dokumentasi Video'
+    | string
   mediaMode: MediaPlaceholderMode
   aspectRatio: MediaAspectRatio
   overlayTag?: string | null
@@ -30,7 +39,7 @@ const defaultPortfolioItems: PortfolioItem[] = [
     title: 'Proses Instalasi Jalur Plafon di Ruko',
     locationContext: 'Ruko Komersial • Bekasi Selatan',
     scopeTag: '8 Channel IP Cam PoE',
-    category: 'video',
+    category: 'Dokumentasi Video',
     mediaMode: 'video',
     aspectRatio: '9/16',
     overlayTag: 'Video Lapangan',
@@ -39,25 +48,25 @@ const defaultPortfolioItems: PortfolioItem[] = [
     title: 'Kemenangan Galaxy, Bekasi — Instalasi & Perawatan Sistem Kamera Komersial',
     locationContext: 'Kemenangan Galaxy • Bekasi',
     scopeTag: '16 Channel Analog HD 5MP',
-    category: 'toko',
+    category: 'Toko & Komersial',
     mediaMode: 'image',
     aspectRatio: '4/3',
-    overlayTag: 'Toko & Usaha',
+    overlayTag: 'Toko & Komersial',
   },
   {
     title: 'Penataan Rack Server & DVR Box Rapi Bebas Kabel Semrawut',
     locationContext: 'Ruang Kontrol Toko & Gudang • Jakarta Timur',
-    scopeTag: 'Manajemen Rack & PSU Central',
-    category: 'toko',
+    scopeTag: 'Full Conduit & PSU Central',
+    category: 'Kerapian Instalasi',
     mediaMode: 'image',
     aspectRatio: '4/3',
-    overlayTag: 'Standar Kerapian',
+    overlayTag: 'Kerapian Instalasi',
   },
   {
     title: 'Hasil Gambar Monitor Siang/Malam (Infrared & Full-Color) Area Gerbang Utama',
     locationContext: 'Hunian Residensial • Kelapa Gading, Jakarta Utara',
     scopeTag: 'ColorVu / Full-Color 24 Jam',
-    category: 'rumah',
+    category: 'Rumah Tinggal',
     mediaMode: 'image',
     aspectRatio: '4/3',
     overlayTag: 'Rumah Tinggal',
@@ -66,7 +75,7 @@ const defaultPortfolioItems: PortfolioItem[] = [
     title: 'Demonstrasi Live Monitoring & Uji Playback di Ponsel Pemilik',
     locationContext: 'Serah Terima & Training Klien • Bekasi Barat',
     scopeTag: 'Remote App iOS & Android',
-    category: 'video',
+    category: 'Dokumentasi Video',
     mediaMode: 'video',
     aspectRatio: '16/9',
     overlayTag: 'Video Lapangan',
@@ -75,19 +84,28 @@ const defaultPortfolioItems: PortfolioItem[] = [
     title: 'Perapian Ulang Sistem CCTV Lama yang Terbengkalai',
     locationContext: 'Revitalisasi Jalur & Konektor • Pondok Kelapa',
     scopeTag: 'Troubleshooting & Re-Cabling',
-    category: 'rumah',
+    category: 'Kerapian Instalasi',
     mediaMode: 'image',
     aspectRatio: '4/3',
     overlayTag: 'Before / After Perbaikan',
   },
 ]
 
-const filterTabs: { id: PortfolioCategory; label: string }[] = [
+const filterTabs: { id: PortfolioFilterTab; label: string }[] = [
   { id: 'semua', label: 'Semua' },
-  { id: 'toko', label: 'Toko & Usaha' },
+  { id: 'toko', label: 'Toko & Komersial' },
   { id: 'rumah', label: 'Rumah Tinggal' },
+  { id: 'kerapian', label: 'Kerapian Instalasi' },
   { id: 'video', label: 'Dokumentasi Video' },
 ]
+
+function normalizeCategory(category: string, mediaMode: MediaPlaceholderMode): PortfolioFilterTab {
+  const lower = (category || '').toLowerCase()
+  if (lower.includes('video') || mediaMode === 'video') return 'video'
+  if (lower.includes('kerapian')) return 'kerapian'
+  if (lower.includes('rumah')) return 'rumah'
+  return 'toko'
+}
 
 export default function PortofolioLapangan({
   sectionTag = 'Bukti Hasil Kerja Nyata',
@@ -95,15 +113,16 @@ export default function PortofolioLapangan({
   subtitle = 'Transparansi kualitas pengerjaan di lapangan—mulai dari penarikan pipa conduit di atas plafon, perapian box DVR, hingga kejernihan tangkapan layar monitor dan ponsel.',
   items,
 }: PortofolioLapanganProps) {
-  const [activeFilter, setActiveFilter] = useState<PortfolioCategory>('semua')
+  const [activeFilter, setActiveFilter] = useState<PortfolioFilterTab>('semua')
   const portfolioList = items && items.length > 0 ? items : defaultPortfolioItems
 
   const filteredItems = portfolioList.filter((item) => {
     if (activeFilter === 'semua') return true
+    const normalized = normalizeCategory(item.category, item.mediaMode)
     if (activeFilter === 'video') {
-      return item.category === 'video' || item.mediaMode === 'video'
+      return normalized === 'video' || item.mediaMode === 'video'
     }
-    return item.category === activeFilter
+    return normalized === activeFilter
   })
 
   return (
@@ -167,7 +186,7 @@ export default function PortofolioLapangan({
                   aspectRatio={item.aspectRatio}
                   src={item.mediaUrl}
                   label={item.title}
-                  tag={item.overlayTag || undefined}
+                  tag={item.overlayTag || item.category}
                   className="rounded-2xl border-0"
                 />
               </div>

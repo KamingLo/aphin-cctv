@@ -21,8 +21,10 @@ File ini menyimpan instruksi dan aturan struktur folder untuk Payload CMS Collec
 ```
 src/collections/
 ├── Blogs.ts                   # Fitur Utama (Blogs)
-├── Media.ts                   # Fitur Utama (Media Upload)
+├── Invoices.ts                # Fitur Utama (Manajemen Nota & Invoice Proyek)
+├── Media.ts                   # Fitur Utama (Media Upload: Foto & Video)
 ├── Pages.ts                   # Fitur Utama (Pages)
+├── Portfolio.ts               # Fitur Utama (Portofolio & Dokumentasi Lapangan)
 ├── Users.ts                   # Fitur Utama (User Auth)
 └── components/
     ├── AlurKerja.ts           # Komponen Kecil (Workflow, Area Layanan & WhatsApp CTA)

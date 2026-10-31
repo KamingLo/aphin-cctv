@@ -23,7 +23,7 @@ export const FooterGlobal: CollectionConfig = {
     {
       name: 'portalUrl',
       type: 'text',
-      defaultValue: '/login',
+      defaultValue: '/admin',
     },
     {
       name: 'links',

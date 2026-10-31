@@ -15,7 +15,7 @@ export interface FooterGlobalProps {
 export default function FooterGlobal({
   copyright = '© 2026 CCTV APHIN. Spesialis Sistem Keamanan & Kamera Pengawas.',
   portalLabel = 'Portal Internal',
-  portalUrl = '/login',
+  portalUrl = '/admin',
   links,
 }: FooterGlobalProps) {
   const displayCopyright =
@@ -24,6 +24,9 @@ export default function FooterGlobal({
     copyright.includes('Arang Premium')
       ? '© 2026 CCTV APHIN. Spesialis Sistem Keamanan & Kamera Pengawas.'
       : copyright
+
+  const resolvedPortalUrl =
+    !portalUrl || portalUrl === '/login' ? '/admin' : portalUrl
 
   return (
     <footer className="w-full border-t border-[#D2D2D7] bg-white">
@@ -47,7 +50,7 @@ export default function FooterGlobal({
               ))}
 
           <a
-            href={portalUrl}
+            href={resolvedPortalUrl}
             className="inline-flex items-center gap-1.5 rounded-full border border-transparent px-2.5 py-1 text-[11px] font-medium text-[#86868B]/85 transition-colors hover:border-[#E5E5EA] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]"
             title="Akses Portal Internal & Pembuatan Invoice"
           >

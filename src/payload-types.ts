@@ -67,6 +67,8 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    invoices: Invoice;
+    portfolio: Portfolio;
     users: User;
     media: Media;
     pages: Page;
@@ -80,6 +82,8 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    invoices: InvoicesSelect<false> | InvoicesSelect<true>;
+    portfolio: PortfolioSelect<false> | PortfolioSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -92,13 +96,15 @@ export interface Config {
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
   fallbackLocale: null;
   globals: {
+    'company-settings': CompanySetting;
     settings: Setting;
   };
   globalsSelect: {
+    'company-settings': CompanySettingsSelect<false> | CompanySettingsSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
   };
   locale: null;
@@ -130,11 +136,106 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Manajemen pembuatan nota/invoice proyek instalasi, perawatan, dan perbaikan CCTV APHIN.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices".
+ */
+export interface Invoice {
+  id: string;
+  /**
+   * Format otomatis: INV/APH/YYYY/MM/XXX
+   */
+  invoiceNumber: string;
+  issueDate: string;
+  status: 'unpaid' | 'paid' | 'draft';
+  clientName: string;
+  clientLocation: string;
+  items: {
+    description: string;
+    qty: number;
+    unit?: ('Unit' | 'Titik' | 'Meter' | 'Paket' | 'Roll' | 'Lot') | null;
+    unitPrice: number;
+    /**
+     * Dihitung otomatis (Qty × Harga)
+     */
+    rowTotal?: number | null;
+    id?: string | null;
+  }[];
+  subtotal?: number | null;
+  discount?: number | null;
+  downPayment?: number | null;
+  /**
+   * Subtotal - Diskon - DP
+   */
+  grandTotal?: number | null;
+  /**
+   * Kosongkan untuk menggunakan catatan garansi default dari Pengaturan Perusahaan.
+   */
+  customNotes?: string | null;
+  /**
+   * Data profil dan rekening saat invoice diterbitkan agar riwayat invoice lama tetap akurat.
+   */
+  companySnapshot?: {
+    companyName?: string | null;
+    tagline?: string | null;
+    whatsapp?: string | null;
+    address?: string | null;
+    bankName?: string | null;
+    accountNumber?: string | null;
+    accountHolder?: string | null;
+    signerName?: string | null;
+    signatureUrl?: string | null;
+    logoUrl?: string | null;
+    notes?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Dokumentasi foto hasil instalasi rapi dan video lapangan untuk ditampilkan pada halaman utama CCTV APHIN.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio".
+ */
+export interface Portfolio {
+  id: string;
+  title: string;
+  location: string;
+  techSpecTag: string;
+  category: 'Toko & Komersial' | 'Rumah Tinggal' | 'Kerapian Instalasi' | 'Dokumentasi Video';
+  /**
+   * Unggah foto hasil pemasangan atau video dokumentasi lapangan.
+   */
+  media?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -157,29 +258,10 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   layout?:
@@ -193,7 +275,7 @@ export interface Page {
             secondaryCtaText?: string | null;
             secondaryCtaLink?: string | null;
             showcaseLabel?: string | null;
-            image?: (number | null) | Media;
+            image?: (string | null) | Media;
             features?:
               | {
                   title: string;
@@ -240,7 +322,7 @@ export interface Page {
                   title: string;
                   description: string;
                   mediaLabel?: string | null;
-                  image?: (number | null) | Media;
+                  image?: (string | null) | Media;
                   id?: string | null;
                 }[]
               | null;
@@ -261,7 +343,7 @@ export interface Page {
                   mediaMode: 'image' | 'video';
                   aspectRatio: '4/3' | '16/9' | '9/16';
                   overlayTag?: string | null;
-                  media?: (number | null) | Media;
+                  media?: (string | null) | Media;
                   id?: string | null;
                 }[]
               | null;
@@ -334,7 +416,7 @@ export interface Page {
             description: string;
             ctaText?: string | null;
             ctaLink?: string | null;
-            image?: (number | null) | Media;
+            image?: (string | null) | Media;
             alignment?: ('left' | 'right') | null;
             id?: string | null;
             blockName?: string | null;
@@ -421,15 +503,15 @@ export interface Page {
  * via the `definition` "blogs".
  */
 export interface Blog {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   excerpt: string;
-  featuredImage: number | Media;
+  featuredImage: string | Media;
   /**
    * Pilih beberapa foto tambahan untuk ditampilkan di bagian galeri artikel.
    */
-  gallery?: (number | Media)[] | null;
+  gallery?: (string | Media)[] | null;
   content: {
     root: {
       type: string;
@@ -447,7 +529,7 @@ export interface Blog {
   };
   publishedAt: string;
   category?: string | null;
-  author?: (number | null) | User;
+  author?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -456,9 +538,9 @@ export interface Blog {
  * via the `definition` "navbar-liquid".
  */
 export interface NavbarLiquid {
-  id: number;
+  id: string;
   brandName: string;
-  logo?: (number | null) | Media;
+  logo?: (string | null) | Media;
   links?:
     | {
         label: string;
@@ -477,7 +559,7 @@ export interface NavbarLiquid {
  * via the `definition` "footer-global".
  */
 export interface FooterGlobal {
-  id: number;
+  id: string;
   copyright: string;
   portalLabel?: string | null;
   portalUrl?: string | null;
@@ -496,7 +578,7 @@ export interface FooterGlobal {
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: number;
+  id: string;
   key: string;
   data:
     | {
@@ -513,36 +595,44 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
+        relationTo: 'invoices';
+        value: string | Invoice;
+      } | null)
+    | ({
+        relationTo: 'portfolio';
+        value: string | Portfolio;
+      } | null)
+    | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: number | Media;
+        value: string | Media;
       } | null)
     | ({
         relationTo: 'pages';
-        value: number | Page;
+        value: string | Page;
       } | null)
     | ({
         relationTo: 'blogs';
-        value: number | Blog;
+        value: string | Blog;
       } | null)
     | ({
         relationTo: 'navbar-liquid';
-        value: number | NavbarLiquid;
+        value: string | NavbarLiquid;
       } | null)
     | ({
         relationTo: 'footer-global';
-        value: number | FooterGlobal;
+        value: string | FooterGlobal;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -552,10 +642,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -575,11 +665,67 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices_select".
+ */
+export interface InvoicesSelect<T extends boolean = true> {
+  invoiceNumber?: T;
+  issueDate?: T;
+  status?: T;
+  clientName?: T;
+  clientLocation?: T;
+  items?:
+    | T
+    | {
+        description?: T;
+        qty?: T;
+        unit?: T;
+        unitPrice?: T;
+        rowTotal?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  discount?: T;
+  downPayment?: T;
+  grandTotal?: T;
+  customNotes?: T;
+  companySnapshot?:
+    | T
+    | {
+        companyName?: T;
+        tagline?: T;
+        whatsapp?: T;
+        address?: T;
+        bankName?: T;
+        accountNumber?: T;
+        accountHolder?: T;
+        signerName?: T;
+        signatureUrl?: T;
+        logoUrl?: T;
+        notes?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio_select".
+ */
+export interface PortfolioSelect<T extends boolean = true> {
+  title?: T;
+  location?: T;
+  techSpecTag?: T;
+  category?: T;
+  media?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -955,16 +1101,62 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-settings".
+ */
+export interface CompanySetting {
+  id: string;
+  companyName: string;
+  tagline?: string | null;
+  whatsapp: string;
+  address?: string | null;
+  logo?: (string | null) | Media;
+  bankDetails: {
+    bankName: string;
+    accountNumber: string;
+    accountHolder: string;
+  };
+  signerName?: string | null;
+  signatureImage?: (string | null) | Media;
+  defaultWarrantyNotes?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "settings".
  */
 export interface Setting {
-  id: number;
-  darkModeIcon?: (number | null) | Media;
-  darkModeLogo?: (number | null) | Media;
-  lightModeIcon?: (number | null) | Media;
-  lightModeLogo?: (number | null) | Media;
+  id: string;
+  darkModeIcon?: (string | null) | Media;
+  darkModeLogo?: (string | null) | Media;
+  lightModeIcon?: (string | null) | Media;
+  lightModeLogo?: (string | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-settings_select".
+ */
+export interface CompanySettingsSelect<T extends boolean = true> {
+  companyName?: T;
+  tagline?: T;
+  whatsapp?: T;
+  address?: T;
+  logo?: T;
+  bankDetails?:
+    | T
+    | {
+        bankName?: T;
+        accountNumber?: T;
+        accountHolder?: T;
+      };
+  signerName?: T;
+  signatureImage?: T;
+  defaultWarrantyNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

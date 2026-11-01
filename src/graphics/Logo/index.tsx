@@ -42,9 +42,9 @@ export const Logos = async () => {
   return (
     <div
       style={{
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif',
-        fontWeight: 800,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        color: 'var(--theme-text)',
         fontSize: '20px',
         letterSpacing: '-0.03em',
       }}

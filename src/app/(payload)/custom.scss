@@ -5,3 +5,155 @@ html[data-theme='dark'] .light-mode-image {
 html[data-theme='light'] .dark-mode-image {
   display: none;
 }
+
+/* =====================================================================
+ * Custom admin components — styled exclusively with Payload theme tokens
+ * so they match native Payload UI and follow Light/Dark mode.
+ * ===================================================================== */
+
+/* ===== Dashboard Metrics — mirrors .collections & .card from Payload ===== */
+.aphin-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--base);
+  margin-bottom: calc(var(--base) * 2);
+  --cols: 4;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--base) / 2);
+  }
+
+  &__label {
+    margin: 0;
+  }
+
+  &__period {
+    color: var(--theme-elevation-500);
+    font-size: 0.8125rem;
+  }
+
+  &__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+
+    > li {
+      min-width: 0;
+    }
+  }
+
+  &__card {
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-border-color);
+    border-radius: var(--style-radius-m);
+    padding: calc(var(--base) * 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: calc(var(--base) * 0.6);
+    height: 100%;
+    transition-property: border, box-shadow, background;
+    transition-duration: 100ms;
+    transition-timing-function: cubic-bezier(0, 0.2, 0.2, 1);
+
+    &:hover {
+      border-color: var(--theme-elevation-250);
+      box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  &__card-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__card-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+    color: var(--theme-elevation-800);
+  }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--theme-text);
+    word-break: break-word;
+  }
+
+  &__unit {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--theme-elevation-500);
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--theme-elevation-500);
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .btn {
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 1440px) {
+    --cols: 2;
+  }
+
+  @media (max-width: 768px) {
+    --cols: 1;
+  }
+}
+
+/* ===== Invoice Preview Toolbar ===== */
+.aphin-print-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--base);
+  background: var(--theme-elevation-50);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-m);
+  padding: calc(var(--base) * 0.8);
+  margin-bottom: var(--base);
+
+  .btn {
+    margin: 0;
+  }
+
+  &__title {
+    display: block;
+    font-weight: 600;
+    color: var(--theme-text);
+  }
+
+  &__desc {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.8125rem;
+    color: var(--theme-elevation-500);
+  }
+}
